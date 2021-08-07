@@ -7,12 +7,12 @@ const app = express();
 // Public sources
 app.use(express.static("public"));
 
+// Reading and parsing of body requests
+// It process requests where body comes in json format
+app.use(express.json());
+
 // Routes
-// app.get("/", (req, res) => {
-//     res.json({
-//         ok: true,
-//     });
-// });
+app.use("/api/auth", require("./routes/auth"));
 
 // Listen requests
 app.listen(process.env.PORT, () => {
