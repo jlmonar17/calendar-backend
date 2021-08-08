@@ -25,7 +25,7 @@ const createUser = async (req, res = response) => {
         await user.save();
 
         // Generating JWT
-        const token = await generateJWT(user.uid, user.name);
+        const token = await generateJWT(user.id, user.name);
 
         res.status(201).json({
             ok: true,
@@ -67,7 +67,7 @@ const loginUser = async (req, res = response) => {
     }
 
     // Generating JWT
-    const token = await generateJWT(user.uid, user.name);
+    const token = await generateJWT(user.id, user.name);
 
     res.json({
         ok: true,
@@ -77,10 +77,15 @@ const loginUser = async (req, res = response) => {
     });
 };
 
-const revalidateToken = (req, res = response) => {
+const revalidateToken = async (req, res = response) => {
+    const { uid, name } = req;
+
+    // Re-Generate token
+    const token = await generateJWT(uid, name);
+
     res.json({
         ok: true,
-        msg: "Revalidate token",
+        token,
     });
 };
 
