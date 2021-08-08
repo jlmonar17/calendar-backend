@@ -38,14 +38,33 @@ const createUser = async (req, res = response) => {
     }
 };
 
-const loginUser = (req, res = response) => {
+const loginUser = async (req, res = response) => {
     const { email, password } = req.body;
+
+    // Checking if user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res.status(400).json({
+            ok: false,
+            msg: "User doesn't exist with provided email",
+        });
+    }
+
+    // Checking if password is correct
+    const validPassword = await bcrypt.compareSync(password, user.password);
+
+    if (!validPassword) {
+        return res.status(400).json({
+            ok: false,
+            msg: "Password is invalid",
+        });
+    }
 
     res.json({
         ok: true,
-        msg: "Login user",
-        email,
-        password,
+        uid: user.id,
+        name: user.name,
     });
 };
 
