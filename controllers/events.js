@@ -41,16 +41,58 @@ const createEvent = async (req, res = response) => {
 
         return res.status(500).json({
             ok: false,
-            msg: "Unexpeted error, contact to support.",
+            msg: "Unexpected error, contact to support.",
         });
     }
 };
 
-const updateEvent = (req, res = response) => {
-    return res.json({
-        ok: true,
-        msg: "Update Event",
-    });
+const updateEvent = async (req, res = response) => {
+    try {
+        // Get value from ":/id" passed as parameter in route
+        const eventId = req.params.id;
+        const uid = req.uid;
+
+        // Check if event exist with provided id
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return res.status(404).json({
+                ok: false,
+                msg: "Event doesn't exist",
+            });
+        }
+
+        // Check if user have privilegies to update event
+        if (event.user.toString() !== uid) {
+            return res.status(401).json({
+                ok: false,
+                msg: "User doesn't have privilegies to update event",
+            });
+        }
+
+        // Now we update the event
+        const newEvent = {
+            ...req.body,
+            user: uid,
+        };
+
+        // {new: true} is used to return in eventUpdated, the last update data
+        const eventUpdated = await Event.findByIdAndUpdate(eventId, newEvent, {
+            new: true,
+        });
+
+        return res.status(201).json({
+            ok: true,
+            event: eventUpdated,
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.json({
+            ok: false,
+            msg: "Unexpected error, contact to support",
+        });
+    }
 };
 
 const deleteEvent = (req, res = response) => {
