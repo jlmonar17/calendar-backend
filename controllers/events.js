@@ -1,11 +1,14 @@
 const { response } = require("express");
 const Event = require("../models/Event");
 
-const getEvents = (req, res = response) => {
+const getEvents = async (req, res = response) => {
     try {
+        // With populate() we get can get extra data about user, and not only the id
+        const events = await Event.find().populate("user", "name email");
+
         return res.json({
             ok: true,
-            msg: "getEvents",
+            events,
         });
     } catch (error) {
         console.log(error);
